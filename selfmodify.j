@@ -1,3 +1,6 @@
+// SELF-MODIFY
+// Construct a method area on the stack and call the code
+
 .method getpc
 .args   1
 	iload 1
@@ -52,7 +55,10 @@
 
 // construct new method area
 	ldc_w 0x0036 // istore 0, nop, nop // rebase returns the value of lv
-	ldc_w 0xac2a10 // bipush 42, ireturn, nop
+
+	ldc_w 0x00b66e10 ldc_w 0xac00 // bipush 110 (objref)
+	                              // invokevirtual getpc
+	                              // ireturn, nopnop
 
 // rebase to move pc into the stack, calling the code we've just specified
 // dynamically
