@@ -1,44 +1,10 @@
-.method main
+.method getpc
 .args   1
-.define linkptr = 0
-.define callerspc = 1
-.define callerslv = 2
-
-// we want to keep tight control of the constant pool,
-// so instead of using subroutines (aka methods), we call main.
-// main checks the caller's pc to determine which subroutine is
-// intended to be called. as a guide, the caller pushes an objref
-// which indicates the subroutine intended to be called.
-// (see comments below.) in the stack trace, whenever invokevirtual
-// is called with an objref, we can see the value of caller's pc
-// in the stack. this helps us to write the helper branching code
-// right below.
-
-// at pc 48 we intend to call GETPC
-	iload 1
-	bipush 48
-	isub
-	ifeq GETPC
-
-// at pc 84 we intend to call REBASE
-	iload 1
-	bipush 84
-	isub
-	ifeq REBASE
-	goto MAIN
-
-// CONSTANT POOL - this code is never called. add ldc_w calls to
-// manipulate the constant pool.
-	//ldc_w 0x00010000
-	//ldc_w 0x001000a7 // goto 16
-
-// 110
-GETPC:
 	iload 1
 	ireturn
 
-// 120
-REBASE:
+.method rebase
+.args   1
 	// we want the program counter to point into the stack of the caller
 	iload 2 // get caller's lv (measured in words)
 	bipush 3 iadd // add distance from lv to stack
@@ -50,10 +16,15 @@ REBASE:
 	bipush 1 iadd
 	ireturn
 
-MAIN:
+.method main
+.args   1
+.define linkptr = 0
+.define callerspc = 1
+.define callerslv = 2
+
 // (1a) Call getpc to get the address of the line after this invokevirtual
 	bipush 110 // objref
-	invokevirtual main
+	invokevirtual getpc
 
 // (1b) add number of operations until after the ireturn below
 	bipush 15
@@ -91,6 +62,6 @@ MAIN:
 // rebase to move pc into the stack, calling the code we've just specified
 // dynamically
 	bipush 120 // objref
-	invokevirtual main
+	invokevirtual rebase
 
 // vim:syn=bytecode:
