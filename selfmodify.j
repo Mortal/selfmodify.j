@@ -45,19 +45,14 @@
 	ireturn
 
 // (4) ireturn goes to here
-	pop
-// now our stack is clear
-
+// stack contains return value from above (0)
 // construct new stack frame
-	bipush 0 // lv - we get this from REBASE
 	bipush 1 // caller's pc - default value for main
 	bipush 0 // caller's lv - default value for main
 
 // construct new method area
-	//ldc_w 0xa7000036 ldc_w 0xff000500 // istore 0, nop, goto 5
-	//ldc_w 0xac002a10 // bipush 42, nop, ireturn
-	ldc_w -0x58FFFFCA ldc_w -0xFFFB00
-	ldc_w -0x53FFD5F0
+	ldc_w 0x0036 // istore 0, nop, nop // rebase returns the value of lv
+	ldc_w 0xac2a10 // bipush 42, ireturn, nop
 
 // rebase to move pc into the stack, calling the code we've just specified
 // dynamically
